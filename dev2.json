@@ -1,0 +1,136 @@
+{
+  "api": [
+    {
+      "url": "https://hub.hallo.geloe.st/api/memory/store",
+      "name": "storeData",
+      "description": "Speichert verschiedene Datentypen wie Notizen, Kontakte, Termine, Bücher oder generische Erinnerungen.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["note", "contact", "appointment", "book", "memory"],
+            "description": "Art der zu speichernden Daten (z. B. note, contact, appointment, book, memory)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Titel oder Überschrift der Daten (z. B. Meetingtitel oder Notiztitel)."
+          },
+          "content": {
+            "type": "string",
+            "description": "Inhalt der Notiz (nur relevant wenn type=note)."
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Erstellungsdatum, Format: yyyy-mm-dd (nur relevant wenn type=note)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name der Person (nur relevant wenn type=contact)."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Telefonnummer (nur relevant wenn type=contact)."
+          },
+          "email": {
+            "type": "string",
+            "description": "E-Mail-Adresse (nur relevant wenn type=contact)."
+          },
+          "city": {
+            "type": "string",
+            "description": "Stadt (nur relevant wenn type=contact)."
+          },
+          "score": {
+            "type": "number",
+            "description": "Bewertung oder Punkte (nur relevant wenn type=contact)."
+          },
+          "description": {
+            "type": "string",
+            "description": "Beschreibung, z. B. Termin- oder Projektdetails (nur relevant wenn type=appointment)."
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Startzeit im ISO-Format (nur relevant wenn type=appointment)."
+          },
+          "end_time": {
+            "type": "string",
+            "description": "Endzeit im ISO-Format (nur relevant wenn type=appointment)."
+          },
+          "user_id": {
+            "type": "string",
+            "description": "User-ID für den Termin (nur relevant wenn type=appointment)."
+          },
+          "author": {
+            "type": "string",
+            "description": "Autor des Buchs (nur relevant wenn type=book)."
+          },
+          "genre": {
+            "type": "string",
+            "description": "Genre des Buchs (nur relevant wenn type=book)."
+          },
+          "publication_date": {
+            "type": "string",
+            "description": "Erscheinungsdatum im Format yyyy-mm-dd (nur relevant wenn type=book)."
+          },
+          "isbn": {
+            "type": "string",
+            "description": "ISBN-Nummer (nur relevant wenn type=book)."
+          },
+          "summary": {
+            "type": "string",
+            "description": "Kurze Zusammenfassung des Buchs (nur relevant wenn type=book)."
+          },
+          "text": {
+            "type": "string",
+            "description": "Allgemeiner Erinnerungstext (nur relevant wenn type=memory)."
+          }
+        },
+        "required": ["type"],
+        "description": "Object mit allen Feldern, von denen nur manche je nach type benötigt werden."
+      }
+    },
+    {
+      "url": "https://hub.hallo.geloe.st/api/memory/retrieve",
+      "name": "retrieveData",
+      "description": "Ruft gespeicherte Daten auf Basis eines Suchtexts und (optional) eines bestimmten Datentyps ab.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Der Suchtext, z. B. 'Zeige alle Termine für morgen'."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["note", "contact", "appointment", "book", "memory"],
+            "description": "Optionaler Filter, falls nur ein bestimmter Datentyp gesucht wird."
+          }
+        },
+        "required": ["text"],
+        "description": "Abfrage-Parameter zum Filtern und Finden der passenden Einträge."
+      }
+    },
+    {
+      "url": "https://hub.hallo.geloe.st/api/execute-sql",
+      "name": "executeSqlQuery",
+      "description": "Führt eine beliebige SQL-Abfrage aus und gibt das Ergebnis als JSON zurück.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Die SQL-Abfrage, die ausgeführt werden soll (z. B. SELECT * FROM gpt_contacts;)."
+          }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
+  "gateway": "https://hub.hallo.geloe.st/api/gateway",
+  "identifier": "my-improved-app-lobechat-plugin",
+  "ui": {
+    "url": "https://hub.hallo.geloe.st",
+    "height": 200
+  },
+  "version": "1"
+}
