@@ -1,0 +1,27 @@
+{
+    "meta": {
+      "name": "SQL Executor",
+      "description": "Führt eine bereitgestellte SQL-Abfrage aus und gibt das Ergebnis als JSON zurück.",
+      "version": "1.0.0",
+      "author": "Agentur"
+    },
+    "identifier": "my-sql-executor-plugin",
+    "api": [
+      {
+        "url": "https://hub.hallo.geloe.st/api/execute-sql",
+        "name": "executeSqlQuery",
+        "description": "Führt eine SQL-Abfrage aus und gibt das Ergebnis zurück.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Die auszuführende SQL-Abfrage (z. B. SELECT * FROM users)."
+            }
+          },
+          "required": ["query"]
+        }
+      }
+    ],
+    "version": "1"
+  }
