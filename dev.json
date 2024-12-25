@@ -1,335 +1,136 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "My Improved App",
-    "description": "Ein vielseitiger KI-Assistent für Termine, Kontakte, Notizen und mehr!",
-    "version": "1.1.0"
-  },
-  "servers": [
+  "api": [
     {
-      "url": "https://hub.hallo.geloe.st",
-      "description": "API über HTTP"
+      "url": "https://hub.hallo.geloe.st/api/memory/store",
+      "name": "storeData",
+      "description": "Speichert verschiedene Datentypen wie Notizen, Kontakte, Termine, Bücher oder generische Erinnerungen.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["note", "contact", "appointment", "book", "memory"],
+            "description": "Art der zu speichernden Daten (z. B. note, contact, appointment, book, memory)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Titel oder Überschrift der Daten (z. B. Meetingtitel oder Notiztitel)."
+          },
+          "content": {
+            "type": "string",
+            "description": "Inhalt der Notiz (nur relevant wenn type=note)."
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Erstellungsdatum, Format: yyyy-mm-dd (nur relevant wenn type=note)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name der Person (nur relevant wenn type=contact)."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Telefonnummer (nur relevant wenn type=contact)."
+          },
+          "email": {
+            "type": "string",
+            "description": "E-Mail-Adresse (nur relevant wenn type=contact)."
+          },
+          "city": {
+            "type": "string",
+            "description": "Stadt (nur relevant wenn type=contact)."
+          },
+          "score": {
+            "type": "number",
+            "description": "Bewertung oder Punkte (nur relevant wenn type=contact)."
+          },
+          "description": {
+            "type": "string",
+            "description": "Beschreibung, z. B. Termin- oder Projektdetails (nur relevant wenn type=appointment)."
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Startzeit im ISO-Format (nur relevant wenn type=appointment)."
+          },
+          "end_time": {
+            "type": "string",
+            "description": "Endzeit im ISO-Format (nur relevant wenn type=appointment)."
+          },
+          "user_id": {
+            "type": "string",
+            "description": "User-ID für den Termin (nur relevant wenn type=appointment)."
+          },
+          "author": {
+            "type": "string",
+            "description": "Autor des Buchs (nur relevant wenn type=book)."
+          },
+          "genre": {
+            "type": "string",
+            "description": "Genre des Buchs (nur relevant wenn type=book)."
+          },
+          "publication_date": {
+            "type": "string",
+            "description": "Erscheinungsdatum im Format yyyy-mm-dd (nur relevant wenn type=book)."
+          },
+          "isbn": {
+            "type": "string",
+            "description": "ISBN-Nummer (nur relevant wenn type=book)."
+          },
+          "summary": {
+            "type": "string",
+            "description": "Kurze Zusammenfassung des Buchs (nur relevant wenn type=book)."
+          },
+          "text": {
+            "type": "string",
+            "description": "Allgemeiner Erinnerungstext (nur relevant wenn type=memory)."
+          }
+        },
+        "required": ["type"],
+        "description": "Object mit allen Feldern, von denen nur manche je nach type benötigt werden."
+      }
+    },
+    {
+      "url": "https://hub.hallo.geloe.st/api/memory/retrieve",
+      "name": "retrieveData",
+      "description": "Ruft gespeicherte Daten auf Basis eines Suchtexts und (optional) eines bestimmten Datentyps ab.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Der Suchtext, z. B. 'Zeige alle Termine für morgen'."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["note", "contact", "appointment", "book", "memory"],
+            "description": "Optionaler Filter, falls nur ein bestimmter Datentyp gesucht wird."
+          }
+        },
+        "required": ["text"],
+        "description": "Abfrage-Parameter zum Filtern und Finden der passenden Einträge."
+      }
+    },
+    {
+      "url": "https://hub.hallo.geloe.st/api/execute-sql",
+      "name": "executeSqlQuery",
+      "description": "Führt eine beliebige SQL-Abfrage aus und gibt das Ergebnis als JSON zurück.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Die SQL-Abfrage, die ausgeführt werden soll (z. B. SELECT * FROM gpt_contacts;)."
+          }
+        },
+        "required": ["query"]
+      }
     }
   ],
-  "paths": {
-    "/api/memory/store": {
-      "post": {
-        "tags": ["Memory"],
-        "summary": "Speichert Daten im Speicher",
-        "description": "Speichert verschiedene Datentypen wie Notizen, Kontakte, Termine oder Bücher, indem der eingegebene Text verarbeitet und in der Datenbank abgelegt wird.",
-        "operationId": "storeData",
-        "requestBody": {
-          "description": "Daten zum Speichern",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "discriminator": {
-                  "propertyName": "type",
-                  "mapping": {
-                    "note": "#/components/schemas/Note",
-                    "contact": "#/components/schemas/Contact",
-                    "appointment": "#/components/schemas/Appointment",
-                    "book": "#/components/schemas/Book",
-                    "memory": "#/components/schemas/Memory"
-                  }
-                },
-                "oneOf": [
-                  { "$ref": "#/components/schemas/Note" },
-                  { "$ref": "#/components/schemas/Contact" },
-                  { "$ref": "#/components/schemas/Appointment" },
-                  { "$ref": "#/components/schemas/Book" },
-                  { "$ref": "#/components/schemas/Memory" }
-                ]
-              },
-              "examples": {
-                "Notiz": {
-                  "value": {
-                    "type": "note",
-                    "title": "Projektidee",
-                    "content": "Smart-Home-App entwickeln",
-                    "created_at": "2023-10-01"
-                  }
-                },
-                "Kontakt": {
-                  "value": {
-                    "type": "contact",
-                    "name": "Lisa Müller",
-                    "phone": "0123-456789",
-                    "email": "lisa@example.com",
-                    "city": "Berlin",
-                    "score": 5
-                  }
-                },
-                "Termin": {
-                  "value": {
-                    "type": "appointment",
-                    "title": "Meeting mit Peter",
-                    "description": "Projektbesprechung",
-                    "start_time": "2023-10-05T10:00:00",
-                    "end_time": "2023-10-05T11:00:00",
-                    "user_id": "123"
-                  }
-                },
-                "Buch": {
-                  "value": {
-                    "type": "book",
-                    "title": "Dune",
-                    "author": "Frank Herbert",
-                    "genre": "Sci-Fi",
-                    "publication_date": "1965-08-01",
-                    "isbn": "9780441172719",
-                    "summary": "Ein episches Abenteuer auf dem Wüstenplaneten Arrakis."
-                  }
-                },
-                "Erinnerung": {
-                  "value": {
-                    "type": "memory",
-                    "text": "Dies ist eine zu speichernde Erinnerung."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Daten erfolgreich gespeichert",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StoreResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ungültige Eingabe",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/memory/retrieve": {
-      "post": {
-        "tags": ["Memory"],
-        "summary": "Ruft gespeicherte Daten ab",
-        "description": "Ruft gespeicherte Daten basierend auf einem Abfragetext und optional einem Datentyp ab.",
-        "operationId": "retrieveData",
-        "requestBody": {
-          "description": "Abfrageparameter",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "text": {
-                    "type": "string",
-                    "description": "Der Abfragetext",
-                    "example": "Zeige meine Termine für morgen."
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Der Datentyp für die Abfrage",
-                    "enum": ["note", "contact", "appointment", "book", "memory"],
-                    "example": "appointment"
-                  }
-                },
-                "required": ["text"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Abfrageergebnisse",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "results": {
-                      "type": "array",
-                      "items": {
-                        "oneOf": [
-                          { "$ref": "#/components/schemas/Note" },
-                          { "$ref": "#/components/schemas/Contact" },
-                          { "$ref": "#/components/schemas/Appointment" },
-                          { "$ref": "#/components/schemas/Book" },
-                          { "$ref": "#/components/schemas/Memory" }
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ungültige Eingabe",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/execute-sql": {
-      "post": {
-        "tags": ["SQL"],
-        "summary": "Führt eine SQL-Abfrage aus",
-        "description": "Führt eine bereitgestellte SQL-Abfrage aus und gibt die Ergebnisse als JSON zurück.",
-        "operationId": "executeSqlQuery",
-        "requestBody": {
-          "description": "SQL-Abfrage zum Ausführen",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "description": "Die SQL-Abfrage, die ausgeführt werden soll",
-                    "example": "SELECT * FROM gpt_contacts WHERE city = 'Hamburg';"
-                  }
-                },
-                "required": ["query"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Abfrageergebnisse",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": [
-                  {
-                    "name": "Clara Zimmermann",
-                    "phone": "+49 176 84272781",
-                    "city": "Hamburg",
-                    "email": "clara@example.com",
-                    "score": "4.5"
-                  }
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "Ungültige Abfrage",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "error": "Invalid SQL query"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/doc.json": {
-      "get": {
-        "operationId": "getApiDocumentation",
-        "responses": {
-          "default": {
-            "description": "API-Dokumentation"
-          }
-        }
-      }
-    }
+  "gateway": "https://hub.hallo.geloe.st/api/gateway",
+  "identifier": "my-improved-app-lobechat-plugin",
+  "ui": {
+    "url": "https://hub.hallo.geloe.st",
+    "height": 200
   },
-  "components": {
-    "schemas": {
-      "Note": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string", "enum": ["note"], "example": "note" },
-          "title": { "type": "string", "example": "Projektidee" },
-          "content": { "type": "string", "example": "Smart-Home-App entwickeln" },
-          "created_at": { "type": "string", "format": "date", "example": "2023-10-01" }
-        },
-        "required": ["type", "title", "content"]
-      },
-      "Contact": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string", "enum": ["contact"], "example": "contact" },
-          "name": { "type": "string", "example": "Lisa Müller" },
-          "phone": { "type": "string", "example": "0123-456789" },
-          "email": { "type": "string", "format": "email", "example": "lisa@example.com" },
-          "city": { "type": "string", "example": "Berlin" },
-          "score": { "type": "number", "format": "float", "example": 5 }
-        },
-        "required": ["type", "name"]
-      },
-      "Appointment": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string", "enum": ["appointment"], "example": "appointment" },
-          "title": { "type": "string", "example": "Meeting mit Peter" },
-          "description": { "type": "string", "example": "Projektbesprechung" },
-          "start_time": { "type": "string", "format": "date-time", "example": "2023-10-05T10:00:00" },
-          "end_time": { "type": "string", "format": "date-time", "example": "2023-10-05T11:00:00" },
-          "user_id": { "type": "string", "example": "123" }
-        },
-        "required": ["type", "title", "start_time", "end_time"]
-      },
-      "Book": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string", "enum": ["book"], "example": "book" },
-          "title": { "type": "string", "example": "Dune" },
-          "author": { "type": "string", "example": "Frank Herbert" },
-          "genre": { "type": "string", "example": "Sci-Fi" },
-          "publication_date": { "type": "string", "format": "date", "example": "1965-08-01" },
-          "isbn": { "type": "string", "example": "9780441172719" },
-          "summary": { "type": "string", "example": "Ein episches Abenteuer auf dem Wüstenplaneten Arrakis." }
-        },
-        "required": ["type", "title", "author"]
-      },
-      "Memory": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string", "enum": ["memory"], "example": "memory" },
-          "text": { "type": "string", "example": "Dies ist eine zu speichernde Erinnerung." }
-        },
-        "required": ["type", "text"]
-      },
-      "StoreResponse": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "example": "Daten erfolgreich gespeichert" }
-        }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "error": { "type": "string", "example": "Ungültige Eingabedaten" }
-        }
-      }
-    }
-  }
+  "version": "1"
 }
